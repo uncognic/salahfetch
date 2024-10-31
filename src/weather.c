@@ -1,10 +1,11 @@
 
 #include <sys/stat.h>
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "../inc/graphics.h"
 #include "../inc/prayer.h"
+#include "../inc/weather.h"
 // If the return value is 0 this indicates that API access is allowed
 // If the return value is other than 0 this mean that no API call should be made
 int check_last_api_access(prayers_t *prayer_times){
@@ -20,9 +21,9 @@ int check_last_api_access(prayers_t *prayer_times){
         return -1;
     }
 
-    
+
     //Check if file is empty
-    //If it is empty overwrite it with the current time and exit 
+    //If it is empty overwrite it with the current time and exit
     struct stat st;
     if((stat(filepath, &st) == 0) && (st.st_size == 0)){
 
@@ -32,7 +33,7 @@ int check_last_api_access(prayers_t *prayer_times){
         RESET_COLOUR;
 
         // Overwrite the content
-        fprintf(fp, "%d:%d", 
+        fprintf(fp, "%d:%d",
                 prayer_times->current_date.current_hour,
                 prayer_times->current_date.current_min);
 
@@ -65,10 +66,10 @@ int check_last_api_access(prayers_t *prayer_times){
     fp = fopen(filepath, "w+");
 
     // Overwrite the content
-    fprintf(fp, "%d:%d", 
+    fprintf(fp, "%d:%d",
             prayer_times->current_date.current_hour,
             prayer_times->current_date.current_min);
-                
+
     fclose(fp); fp = NULL;
     return 0;
 }
@@ -82,19 +83,19 @@ int retrieve_weather(prayers_t *prayer_times){
 
     // if check() == 0 -> make an API CALL otherwise just read the info file
     if(check_last_api_access(prayer_times) == 0){
-        
+
         // Retrieve the return value of the weather process
         FILE *proc_ptr = popen("get_weather", "r");
         fgets(proc_buff, sizeof(proc_buff), proc_ptr);
         pclose(proc_ptr); proc_ptr = NULL;
-    
+
         WHT;
         printf("Info: API Call initiated, minimum API period exceeded\n");
         RESET_COLOUR;
-        
-        // If API Call is valid create the file with rw permissions and 
+
+        // If API Call is valid create the file with rw permissions and
         fp = fopen(weather_info_filepath, "w+");
-        // Write the get_weather process output to info file 
+        // Write the get_weather process output to info file
         fprintf(fp, "%s", proc_buff); fclose(fp); fp = NULL;
 
         // reassign file pointer to same file but with read permission
@@ -145,7 +146,7 @@ int retrieve_weather(prayers_t *prayer_times){
     fgets(buff, sizeof(buff), fp);
 
     // Read First token of string
-    token = strtok(buff, seperator); 
+    token = strtok(buff, seperator);
 
     // Parse the tokens and save prayer times
     for(int i = 0; (token != NULL ) && (i < 30); i++){
